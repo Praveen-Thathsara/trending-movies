@@ -4,17 +4,32 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-TMDB_API_KEY = os.getenv("TMDB_API_KEY")
+API_KEY = os.getenv("TMDB_API_KEY")
 BASE_URL = "https://api.themoviedb.org/3"
 
-def get_trending_movies():
-    url = f"{BASE_URL}/trending/movie/day"
-    params = {"api_key": TMDB_API_KEY}
-    response = requests.get(url, params=params)
+
+def trending(media_type="movie", language=None, genre=None, top_rated=False):
+    if top_rated:
+        endpoint = f"/{media_type}/top_rated"
+    else:
+        endpoint = f"/trending/{media_type}/day"
+
+    params = {"api_key": API_KEY}
+
+    if language:
+        params["with_original_language"] = language
+
+    if genre:
+        params["with_genres"] = genre
+
+    response = requests.get(BASE_URL + endpoint, params=params)
     return response.json()
 
-def get_trending_tv():
-    url = f"{BASE_URL}/trending/tv/day"
-    params = {"api_key": TMDB_API_KEY}
-    response = requests.get(url, params=params)
-    return response.json()
+
+def search_tmdb(query, media_type="movie"):
+    endpoint = f"/search/{media_type}"
+    params = {
+        "api_key": API_KEY,
+        "query": query
+    }
+    return requests.get(BASE_URL + endpoint, params=params).json()
